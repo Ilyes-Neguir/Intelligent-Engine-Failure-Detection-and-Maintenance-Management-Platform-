@@ -57,7 +57,7 @@ def load_models():
         print("Model loaded successfully")
         
         # Load the feature scaler
-        scaler = joblib.load("../../feature_scaler.pkl")
+        scaler = joblib.load("../../models/feature_scaler.pkl")
         print("Scaler loaded successfully")
         
     except Exception as e:
