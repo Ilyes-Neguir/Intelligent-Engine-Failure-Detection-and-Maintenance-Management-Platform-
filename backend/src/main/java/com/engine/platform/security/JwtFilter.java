@@ -38,8 +38,6 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         try {
             String email = jwtUtil.extractEmail(token);
-            Long userId = jwtUtil.extractUserId(token);
-            String role = jwtUtil.extractRole(token);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -49,10 +47,6 @@ public class JwtFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    // Store JWT claims as request attributes for easy access
-                    request.setAttribute("userId", userId);
-                    request.setAttribute("role", role);
                 }
             }
         } catch (Exception ex) {

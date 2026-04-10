@@ -28,7 +28,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+                    // CSRF protection is intentionally disabled: this is a stateless REST API
+                    // authenticated via JWT in the Authorization header (not cookies), so CSRF
+                    // attacks are not applicable.
+                    .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
@@ -36,7 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/bookings/*/accept", "/api/bookings/*/start", "/api/bookings/*/complete")
                     .hasAuthority("MECHANIC")
                 .requestMatchers("/api/diagnostic/**").hasAuthority("MECHANIC")
-                .requestMatchers("/api/maintenance/**").hasAuthority("MECHANIC")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/maintenance/**").hasAuthority("MECHANIC")
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))

@@ -78,12 +78,18 @@ public class DiagnosticService {
         PredictionResponse prediction = fastApiClient.predict(mlRequest);
 
         // Bounds-check predictedFault to avoid ArrayIndexOutOfBoundsException
-        int faultIndex = prediction.getPredictedFault() != null ? prediction.getPredictedFault() : -1;
+        Integer rawFault = prediction.getPredictedFault();
         String faultLabel;
-        if (faultIndex < 0 || faultIndex >= FAULT_LABELS.length) {
-            faultLabel = "Unknown (index " + faultIndex + " out of range)";
+        Integer storedFaultIndex;
+        if (rawFault == null) {
+            faultLabel = "No fault prediction available";
+            storedFaultIndex = null;
+        } else if (rawFault < 0 || rawFault >= FAULT_LABELS.length) {
+            faultLabel = "Unknown fault (ML returned unexpected index: " + rawFault + ")";
+            storedFaultIndex = null;
         } else {
-            faultLabel = FAULT_LABELS[faultIndex];
+            faultLabel = FAULT_LABELS[rawFault];
+            storedFaultIndex = rawFault;
         }
 
         OBDData obdData = new OBDData();
@@ -102,7 +108,7 @@ public class DiagnosticService {
         obdData.setO2(dto.getO2());
         obdData.setLambda(dto.getLambda());
         obdData.setAfr(dto.getAfr());
-        obdData.setPredictedFault(faultIndex >= 0 ? faultIndex : null);
+        obdData.setPredictedFault(storedFaultIndex);
         obdData.setConfidence(prediction.getConfidence());
         obdData.setFaultLabel(faultLabel);
 
