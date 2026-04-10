@@ -1,0 +1,4 @@
+com/engine/platform/service/VehicleServiceSecurityTest.class
+com/engine/platform/PlatformApplicationTests.class
+com/engine/platform/service/DiagnosticServiceSecurityTest.class
+com/engine/platform/service/BookingServiceSecurityTest.class
