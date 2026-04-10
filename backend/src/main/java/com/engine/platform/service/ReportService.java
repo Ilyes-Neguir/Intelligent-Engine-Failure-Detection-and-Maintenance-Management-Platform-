@@ -120,6 +120,7 @@ public class ReportService {
 
     private void generatePdf(String filePath, Booking booking, OBDData obdData) {
         Document document = new Document();
+        LocalDateTime now = LocalDateTime.now();
         try {
             PdfWriter.getInstance(document, new FileOutputStream(filePath));
             document.open();
@@ -143,7 +144,7 @@ public class ReportService {
             if (booking.getDescription() != null) {
                 document.add(new Paragraph("Description: " + booking.getDescription(), normalFont));
             }
-            document.add(new Paragraph("Generated: " + LocalDateTime.now(), normalFont));
+            document.add(new Paragraph("Generated: " + now, normalFont));
             document.add(new Paragraph(" "));
 
             if (obdData != null) {

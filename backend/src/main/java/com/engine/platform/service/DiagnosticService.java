@@ -60,7 +60,9 @@ public class DiagnosticService {
                     "ML service unavailable or returned an error: " + e.getMessage());
         }
 
-        // Bounds-check the predicted fault index
+        // Bounds-check the predicted fault index.
+        // -1 is used as a sentinel value to indicate an out-of-range or null prediction.
+        // Downstream code (e.g., PDF report) should treat predictedFault == -1 as "Unknown Fault".
         String faultLabel;
         Integer predictedFault = prediction.getPredictedFault();
         if (predictedFault == null || predictedFault < 0 || predictedFault >= FAULT_LABELS.size()) {
