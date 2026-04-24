@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/pfe_engine}
+    username: pfe_user
+    password: pfe_pass
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${SPRING_MAIL_SMTP_STARTTLS:false}
+
+ml:
+  base-url: ${ML_BASE_URL:http://localhost:8001}
+  service:
+    url: ${ML_SERVICE_URL:http://localhost:8001}
+
+reports:
+  directory: ${REPORTS_DIRECTORY:./reports}
+
+app:
+  mail:
+    from: ${APP_MAIL_FROM:no-reply@pfe.local}
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 86400000

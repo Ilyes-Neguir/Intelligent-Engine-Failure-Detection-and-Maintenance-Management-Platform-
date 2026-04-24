@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  pfe-postgres:
+    image: postgres:latest
+    container_name: pfe-postgres
+    environment:
+      POSTGRES_DB: pfe_engine
+      POSTGRES_USER: pfe_user
+      POSTGRES_PASSWORD: pfe_pass
+    ports:
+      - "5433:5432"
+
+  ml-service:
+    build: ./ML
+    container_name: pfe-ml
+    ports:
+      - "8001:8001"
+
+  backend:
+    build: src/main/java
+    container_name: pfe-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pfe-postgres
+      - mailhog
+      - ml-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pfe-postgres:5432/pfe_engine
+      SPRING_MAIL_HOST: mailhog
+      ML_BASE_URL: http://ml-service:8001
+      APP_MAIL_FROM: no-reply@pfe.local
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: pfe-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
