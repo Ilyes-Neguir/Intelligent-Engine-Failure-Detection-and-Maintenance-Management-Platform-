@@ -18,16 +18,6 @@ import java.util.List;
 @Service
 public class DiagnosticService {
 
-    /**
-     * Fault labels indexed by predicted_fault from ML model.
-     * Index 0..2 are the only valid values from the model contract.
-     */
-    private static final String[] FAULT_LABELS = {
-        "Normal/Baseline Operation",
-        "Rich Mixture Problems",
-        "Combustion Efficiency Problems (Misfire/Lean)"
-    };
-
     private final OBDDataRepository obdDataRepository;
     private final BookingService bookingService;
     private final FastApiClient fastApiClient;
@@ -48,7 +38,8 @@ public class DiagnosticService {
      * - mechanicId is derived from JWT (not from path).
      * - Validates that the calling mechanic is the one assigned to the booking.
      * - Validates booking status is IN_PROGRESS or CONFIRMED.
-     * - Hardens ML response: bounds-checks predictedFault index before array lookup.
+     * - Uses the fault_description string from the ML service directly, so reports
+     *   reflect the model's own descriptive labels instead of a hardcoded array.
      */
     public OBDData saveDiagnostic(Long bookingId, OBDDataDTO dto) {
         User currentMechanic = securityUtils.getCurrentUser();
@@ -77,18 +68,17 @@ public class DiagnosticService {
 
         PredictionResponse prediction = fastApiClient.predict(mlRequest);
 
-        // Bounds-check predictedFault to avoid ArrayIndexOutOfBoundsException
+        // Use the detailed fault description returned directly from the ML service
         Integer rawFault = prediction.getPredictedFault();
         String faultLabel;
         Integer storedFaultIndex;
         if (rawFault == null) {
             faultLabel = "No fault prediction available";
             storedFaultIndex = null;
-        } else if (rawFault < 0 || rawFault >= FAULT_LABELS.length) {
-            faultLabel = "Unknown fault (ML returned unexpected index: " + rawFault + ")";
-            storedFaultIndex = null;
         } else {
-            faultLabel = FAULT_LABELS[rawFault];
+            String desc = prediction.getFaultDescription();
+            faultLabel = (desc != null && !desc.isBlank()) ? desc
+                    : "Unknown fault (ML returned unexpected index: " + rawFault + ")";
             storedFaultIndex = rawFault;
         }
 
