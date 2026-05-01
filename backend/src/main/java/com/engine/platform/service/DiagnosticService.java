@@ -78,7 +78,7 @@ public class DiagnosticService {
         } else {
             String desc = prediction.getFaultDescription();
             faultLabel = (desc != null && !desc.isBlank()) ? desc
-                    : "Unknown fault (ML returned unexpected index: " + rawFault + ")";
+                    : "No fault description available for fault index: " + rawFault;
             storedFaultIndex = rawFault;
         }
 
