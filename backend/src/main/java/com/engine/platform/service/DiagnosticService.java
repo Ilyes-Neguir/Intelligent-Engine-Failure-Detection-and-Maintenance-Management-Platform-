@@ -68,7 +68,7 @@ public class DiagnosticService {
 
         PredictionResponse prediction = fastApiClient.predict(mlRequest);
 
-        // Bounds-check predictedFault to avoid unexpected null/absent description
+        // Use fault_description from ML response; fall back to a descriptive message when absent
         Integer rawFault = prediction.getPredictedFault();
         String faultLabel;
         Integer storedFaultIndex;
