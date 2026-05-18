@@ -1,8 +1,8 @@
 REAL RESULTS (CURRENT SNAPSHOT)
 
 Source files:
-- /home/runner/work/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/tests/evaluation_sheet.md
-- /home/runner/work/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/tests/evaluation_sheet.csv
+- tests/evaluation_sheet.md
+- tests/evaluation_sheet.csv
 
 Data layer results:
 1) Max missing rate per feature (%) = 0.000 | Target: <= 1.0 | Status: PASS
