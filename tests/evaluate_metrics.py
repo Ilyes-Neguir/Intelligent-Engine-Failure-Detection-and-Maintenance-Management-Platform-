@@ -110,7 +110,7 @@ def calc_psi(train_values: pd.Series, test_values: pd.Series, bins: int = 10) ->
         return float("nan")
 
     try:
-        quantiles = np.unique(np.quantile(train_values, np.linspace(0, 1, bins + 1)))
+        _, quantiles = pd.qcut(train_values, q=bins, retbins=True, duplicates="drop")
     except (ValueError, TypeError, IndexError):
         return float("nan")
 
@@ -220,8 +220,8 @@ def compute_data_metrics(df: pd.DataFrame, random_state: int) -> Tuple[List[Metr
         "y_all": y,
         "x_train": x_train,
         "x_test": x_test,
-        "y_train": y.iloc[idx_train],
-        "y_test": y.iloc[idx_test],
+        "y_train": y.loc[x_train.index],
+        "y_test": y.loc[x_test.index],
         "psi_values": psi_values,
     }
     return rows, context
@@ -386,22 +386,22 @@ def request_with_timing(
 
 
 def make_predict_payload(df: pd.DataFrame) -> Dict[str, float]:
-    med = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
+    medians = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
     return {
-        "MAP": float(med["MAP"]),
-        "TPS": float(med["TPS"]),
-        "Force": float(med["Force"]),
-        "Power": float(med["Power"]),
-        "RPM": float(med["RPM"]),
-        "Consumption_LH": float(med["Consumption L/H"]),
-        "Consumption_L100KM": float(med["Consumption L/100KM"]),
-        "Speed": float(med["Speed"]),
-        "CO": float(med["CO"]),
-        "HC": float(med["HC"]),
-        "CO2": float(med["CO2"]),
-        "O2": float(med["O2"]),
-        "Lambda": float(med["Lambda"]),
-        "AFR": float(med["AFR"]),
+        "MAP": float(medians["MAP"]),
+        "TPS": float(medians["TPS"]),
+        "Force": float(medians["Force"]),
+        "Power": float(medians["Power"]),
+        "RPM": float(medians["RPM"]),
+        "Consumption_LH": float(medians["Consumption L/H"]),
+        "Consumption_L100KM": float(medians["Consumption L/100KM"]),
+        "Speed": float(medians["Speed"]),
+        "CO": float(medians["CO"]),
+        "HC": float(medians["HC"]),
+        "CO2": float(medians["CO2"]),
+        "O2": float(medians["O2"]),
+        "Lambda": float(medians["Lambda"]),
+        "AFR": float(medians["AFR"]),
     }
 
 
@@ -494,22 +494,22 @@ def compute_api_metrics(
 
 
 def make_backend_payload(df: pd.DataFrame) -> Dict[str, float]:
-    med = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
+    medians = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
     return {
-        "map": float(med["MAP"]),
-        "tps": float(med["TPS"]),
-        "force": float(med["Force"]),
-        "power": float(med["Power"]),
-        "rpm": float(med["RPM"]),
-        "consumptionLH": float(med["Consumption L/H"]),
-        "consumptionL100km": float(med["Consumption L/100KM"]),
-        "speed": float(med["Speed"]),
-        "co": float(med["CO"]),
-        "hc": float(med["HC"]),
-        "co2": float(med["CO2"]),
-        "o2": float(med["O2"]),
-        "lambda": float(med["Lambda"]),
-        "afr": float(med["AFR"]),
+        "map": float(medians["MAP"]),
+        "tps": float(medians["TPS"]),
+        "force": float(medians["Force"]),
+        "power": float(medians["Power"]),
+        "rpm": float(medians["RPM"]),
+        "consumptionLH": float(medians["Consumption L/H"]),
+        "consumptionL100km": float(medians["Consumption L/100KM"]),
+        "speed": float(medians["Speed"]),
+        "co": float(medians["CO"]),
+        "hc": float(medians["HC"]),
+        "co2": float(medians["CO2"]),
+        "o2": float(medians["O2"]),
+        "lambda": float(medians["Lambda"]),
+        "afr": float(medians["AFR"]),
     }
 
 
@@ -538,8 +538,14 @@ def compute_backend_metrics(
         total += 1
         if resp is not None:
             post_latencies.append(elapsed)
-            body = resp.text or ""
-            if "ML prediction failed" in body:
+            message = ""
+            try:
+                payload_json = resp.json()
+                if isinstance(payload_json, dict):
+                    message = str(payload_json.get("message", ""))
+            except (ValueError, TypeError):
+                message = ""
+            if resp.status_code == 400 and "ML prediction failed" in message:
                 ml_failures += 1
             if 200 <= resp.status_code < 300:
                 success_count += 1
