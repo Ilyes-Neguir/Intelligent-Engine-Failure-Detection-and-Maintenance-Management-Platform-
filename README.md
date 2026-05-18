@@ -118,6 +118,41 @@ See code and FastAPI docs for specific payloads and outputs.
   `tests/simple_test.py` – API endpoint validation  
   `tests/manual_prediction_tester.py` – Manually test edge cases, investigate model outputs
 
+### Unified Evaluation Sheet (Data + Model + API + Backend)
+
+Use the evaluation script to compute metrics and generate one consolidated sheet:
+
+```bash
+python3 tests/evaluate_metrics.py
+```
+
+Outputs:
+- `tests/evaluation_sheet.csv`
+- `tests/evaluation_sheet.md`
+
+To include runtime API metrics (`/health`, `/predict`), start FastAPI first and run:
+
+```bash
+python3 tests/evaluate_metrics.py --run-api --api-base-url http://localhost:8001 --api-requests 50
+```
+
+To include backend diagnostic endpoint metrics, start Spring backend and provide auth context:
+
+```bash
+python3 tests/evaluate_metrics.py \
+  --run-backend \
+  --backend-base-url http://localhost:8080 \
+  --backend-booking-id <BOOKING_ID> \
+  --backend-token <JWT_TOKEN> \
+  --backend-requests 50
+```
+
+Optional system resource metrics can be added from a CSV:
+
+```bash
+python3 tests/evaluate_metrics.py --system-metrics-csv /absolute/path/to/system_metrics.csv
+```
+
 ---
 
 ## Documentation & References
