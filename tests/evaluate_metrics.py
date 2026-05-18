@@ -104,6 +104,13 @@ def classify_exact_zero(v: float) -> str:
 
 
 def calc_psi(train_values: pd.Series, test_values: pd.Series, bins: int = 10) -> float:
+    """
+    Compute Population Stability Index (PSI) between train and test feature distributions.
+
+    PSI is calculated as sum((test_pct - train_pct) * ln(test_pct / train_pct)) over bins.
+    Returns NaN when the metric cannot be computed (e.g., empty inputs or invalid binning),
+    and 0.0 when there is not enough variation to create meaningful bins.
+    """
     train_values = train_values.dropna()
     test_values = test_values.dropna()
     if train_values.empty or test_values.empty:
@@ -229,7 +236,7 @@ def compute_data_metrics(df: pd.DataFrame, random_state: int) -> Tuple[List[Metr
     return rows, context
 
 
-def load_model_and_scaler(model_path: Path, scaler_path: Path):
+def load_model_and_scaler(model_path: Path, scaler_path: Path) -> Tuple[Any, Any]:
     if keras is None:
         raise RuntimeError("TensorFlow/Keras is not available. Install tensorflow to run model metrics.")
     model = keras.models.load_model(model_path)
@@ -368,6 +375,14 @@ def request_with_timing(
     headers: Optional[Dict[str, str]] = None,
     json_payload: Optional[Dict[str, Any]] = None,
 ) -> Tuple[Optional[requests.Response], float, bool]:
+    """
+    Send an HTTP request and measure elapsed time.
+
+    Returns (response, elapsed_seconds, is_timeout):
+    - On successful HTTP response: (Response, elapsed, False)
+    - On timeout: (None, elapsed, True)
+    - On other request exceptions: (None, elapsed, False)
+    """
     start = time.perf_counter()
     try:
         response = requests.request(
@@ -388,6 +403,7 @@ def request_with_timing(
 
 
 def make_predict_payload(df: pd.DataFrame) -> Dict[str, float]:
+    """Build a FastAPI /predict payload from dataset median feature values."""
     medians = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
     return {
         "MAP": float(medians["MAP"]),
@@ -496,6 +512,7 @@ def compute_api_metrics(
 
 
 def make_backend_payload(df: pd.DataFrame) -> Dict[str, float]:
+    """Build backend diagnostic payload medians using Spring OBDDataDTO field names."""
     medians = df[FEATURE_COLUMNS].median(numeric_only=True).to_dict()
     return {
         "map": float(medians["MAP"]),
@@ -682,6 +699,12 @@ def compute_system_metrics(system_metrics_csv: Path) -> List[MetricRow]:
 
 
 def write_outputs(rows: List[MetricRow], output_csv: Path, output_md: Path) -> None:
+    """
+    Write consolidated metrics to CSV and Markdown.
+
+    CSV contains flat metric rows. Markdown contains a table with escaped pipe characters
+    in details (`|` -> `&#124;`) to preserve valid table rendering.
+    """
     out_df = pd.DataFrame([r.__dict__ for r in rows])
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     output_md.parent.mkdir(parents=True, exist_ok=True)
