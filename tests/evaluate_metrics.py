@@ -110,7 +110,9 @@ def calc_psi(train_values: pd.Series, test_values: pd.Series, bins: int = 10) ->
         return float("nan")
 
     try:
-        _, quantiles = pd.qcut(train_values, q=bins, retbins=True, duplicates="drop")
+        binned_train, quantiles = pd.qcut(
+            train_values, q=bins, retbins=True, duplicates="drop"
+        )
     except (ValueError, TypeError, IndexError):
         return float("nan")
 
