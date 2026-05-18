@@ -1,0 +1,42 @@
+REAL RESULTS (CURRENT SNAPSHOT)
+
+Source files:
+- /home/runner/work/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/tests/evaluation_sheet.md
+- /home/runner/work/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/Intelligent-Engine-Failure-Detection-and-Maintenance-Management-Platform-/tests/evaluation_sheet.csv
+
+Data layer results:
+1) Max missing rate per feature (%) = 0.000 | Target: <= 1.0 | Status: PASS
+   Why: There are essentially no missing values in the evaluated features.
+
+2) Duplicate row rate (%) = 0.002 | Target: <= 1.0 | Status: PASS
+   Why: Duplicate records are extremely low.
+
+3) Class imbalance ratio = 1.4548 | Target: <= 3.0 | Status: PASS
+   Why: The class distribution is reasonably balanced.
+
+4) Train/Test leakage intersection size = 0 | Target: == 0 | Status: PASS
+   Why: No shared indices between train and test sets were detected.
+
+5) Max PSI (train vs test) = 0.0017 | Target: < 0.10 | Status: PASS
+   Why: Distribution drift between train and test is very low.
+
+Other layers:
+6) Model metrics execution = SKIPPED
+   Why: Model or scaler file was missing at evaluation time.
+
+7) API runtime metrics = SKIPPED
+   Why: API checks were not run with --run-api.
+
+8) Backend runtime metrics = SKIPPED
+   Why: Backend checks were not run with --run-backend.
+
+9) System resource metrics = SKIPPED
+   Why: No --system-metrics-csv file was provided.
+
+HOW these results were generated:
+- Command used: python3 tests/evaluate_metrics.py
+- This command computes available data quality and drift metrics, then writes outputs to evaluation_sheet.md and evaluation_sheet.csv.
+
+WHY some entries are skipped:
+- Runtime/API/backend/system metrics require extra runtime context (running services, auth token, booking id, and/or system metrics CSV).
+- Model metrics require both model and scaler artifacts to be present and loadable.
