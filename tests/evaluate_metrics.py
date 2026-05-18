@@ -768,7 +768,7 @@ def main() -> int:
                     random_state=args.random_state,
                 )
             )
-        except Exception as e:
+        except (RuntimeError, FileNotFoundError, ValueError, ImportError, AttributeError, OSError) as e:
             rows.append(
                 MetricRow(
                     "Model",
@@ -850,7 +850,7 @@ def main() -> int:
     if args.system_metrics_csv:
         try:
             rows.extend(compute_system_metrics(Path(args.system_metrics_csv)))
-        except Exception as e:
+        except (ValueError, FileNotFoundError, pd.errors.ParserError) as e:
             rows.append(
                 MetricRow(
                     "Backend",
