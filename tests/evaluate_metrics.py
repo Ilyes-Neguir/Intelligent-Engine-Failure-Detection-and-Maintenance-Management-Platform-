@@ -32,7 +32,7 @@ from sklearn.preprocessing import label_binarize
 
 try:
     from tensorflow import keras
-except Exception:  # pragma: no cover
+except (ImportError, ModuleNotFoundError):  # pragma: no cover
     keras = None
 
 
@@ -111,7 +111,7 @@ def calc_psi(train_values: pd.Series, test_values: pd.Series, bins: int = 10) ->
 
     try:
         quantiles = np.unique(np.quantile(train_values, np.linspace(0, 1, bins + 1)))
-    except Exception:
+    except (ValueError, TypeError, IndexError):
         return float("nan")
 
     if len(quantiles) < 3:
@@ -538,11 +538,7 @@ def compute_backend_metrics(
         total += 1
         if resp is not None:
             post_latencies.append(elapsed)
-            body = ""
-            try:
-                body = resp.text or ""
-            except Exception:
-                body = ""
+            body = resp.text or ""
             if "ML prediction failed" in body:
                 ml_failures += 1
             if 200 <= resp.status_code < 300:
