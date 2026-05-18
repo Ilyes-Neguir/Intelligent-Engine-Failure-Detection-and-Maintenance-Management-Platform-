@@ -23,7 +23,6 @@ import pandas as pd
 import requests
 from sklearn.metrics import (
     average_precision_score,
-    confusion_matrix,
     precision_recall_fscore_support,
     roc_auc_score,
     f1_score,
@@ -203,7 +202,8 @@ def compute_data_metrics(df: pd.DataFrame, random_state: int) -> Tuple[List[Metr
     psi_values: Dict[str, float] = {}
     for col in FEATURE_COLUMNS:
         psi_values[col] = calc_psi(x_train[col], x_test[col], bins=10)
-    psi_max = max(v for v in psi_values.values() if not math.isnan(v))
+    valid_psi_values = [v for v in psi_values.values() if not math.isnan(v)]
+    psi_max = max(valid_psi_values) if valid_psi_values else float("nan")
     rows.append(
         MetricRow(
             "Data",
@@ -262,7 +262,6 @@ def compute_model_metrics(
     test_pred = np.argmax(test_prob, axis=1)
 
     classes = sorted(y_all.unique().tolist())
-    _ = confusion_matrix(y_test, test_pred, labels=classes)
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_test, test_pred, labels=classes, average=None, zero_division=0
     )
@@ -689,7 +688,7 @@ def write_outputs(rows: List[MetricRow], output_csv: Path, output_md: Path) -> N
         f.write("| Layer | Metric | Value | Target | Status | Details |\n")
         f.write("|---|---|---:|---:|---|---|\n")
         for r in rows:
-            details = r.details.replace("\n", " ").replace("|", "/")
+            details = r.details.replace("\n", " ").replace("|", "&#124;")
             f.write(
                 f"| {r.layer} | {r.metric} | {r.value} | {r.target} | {r.status} | {details} |\n"
             )
