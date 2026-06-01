@@ -16,7 +16,6 @@ The system is designed for extensibility, with both a Python-based machine learn
 - **Scalable Backend:** Spring Boot (Java) microservice ready for enterprise deployment and integration.
 - **Testing Suite:** Automated unit and integration tests to ensure reliability.
 - **Manual & Automated Evaluation:** Jupyter notebooks and test scripts for thorough analysis.
-- **Easy Deployment:** Docker and Docker Compose for simple, reproducible setup.
 - **Documentation:** Comprehensive references for both data science and backend components.
 
 ---
@@ -24,20 +23,20 @@ The system is designed for extensibility, with both a Python-based machine learn
 ## Project Structure
 
 ```
-├── src/                   # Main Python source code
-│   └── api/               # FastAPI web service
-├── backend/               # Java Spring Boot backend (REST API, integration logic)
+├── src/                   # Application source code
+│   ├── api/               # FastAPI web service
+│   ├── main/java/         # Spring Boot backend
+│   └── test/java/         # Backend tests
 ├── data/                  # OBD dataset(s)
 ├── models/                # Machine learning models & preprocessors
 ├── notebooks/             # Jupyter Notebooks (EDA, modeling, results)
-├── tests/                 # Python testing scripts
+├── tests/                 # Python evaluation and API scripts
 ├── requirements.txt       # Python requirements
 ├── pom.xml                # Maven configuration for Java backend
-├── docker-compose.yml     # Docker Compose for orchestrating stack
+├── mvnw / mvnw.cmd        # Maven wrapper scripts
 ├── LICENSE                # Project license
 ├── README.md              # Project documentation (this file)
 ├── HELP.md                # Backend usage/help documentation
-├── PFE_Report.pdf         # Full technical report/documentation
 ```
 
 ---
@@ -48,7 +47,6 @@ The system is designed for extensibility, with both a Python-based machine learn
 
 - Python 3.8+
 - Java 17+ (for backend, see HELP.md for supported versions)
-- Docker & Docker Compose (optional, for full stack deployment)
 
 ### 1. Python Machine Learning Service
 
@@ -70,13 +68,6 @@ See `HELP.md` and `pom.xml` for how to build and run the backend as a standalone
 
 ```bash
 ./mvnw spring-boot:run
-```
-
-### 3. Dockerized Full Stack
-
-To launch the stack (requires Docker Compose):
-```bash
-docker-compose up
 ```
 
 ---
@@ -126,7 +117,7 @@ Use the evaluation script to compute metrics and generate one consolidated sheet
 python3 tests/evaluate_metrics.py
 ```
 
-Outputs:
+Outputs (generated locally; not committed):
 - `tests/evaluation_sheet.csv`
 - `tests/evaluation_sheet.md`
 
@@ -159,8 +150,6 @@ python3 tests/evaluate_metrics.py --system-metrics-csv /absolute/path/to/system_
 
 - **HELP.md:**  
   Step-by-step backend and Maven/Spring help, with relevant official links.
-- **PFE_Report.pdf:**  
-  Detailed report including methodology, model selection, experiments, and results.
 - **Backend Documentation:**  
   Generated JavaDoc and reference links for extending backend services.
 
