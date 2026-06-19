@@ -24,12 +24,6 @@ public class DiagnosticService {
     private final FastApiClient fastApiClient;
     private final DiagnosticMapper diagnosticMapper;
 
-    private static final String[] FAULT_LABELS = {
-            "No Fault",
-            "Ignition Fault",
-            "Fuel System/Emission Control Fault"
-    };
-
     public OBDDataResponseDTO saveDiagnosticDto(Long bookingId, OBDDataDTO dto, Authentication authentication) throws IOException {
         return diagnosticMapper.toDto(saveDiagnostic(bookingId, dto, authentication));
     }
@@ -61,9 +55,10 @@ public class DiagnosticService {
 
         PredictionResultResponse prediction = fastApiClient.predict(request);
 
-        int predicted = prediction.predictedFault();
-        if (predicted < 0 || predicted >= FAULT_LABELS.length) {
-            throw new InvalidPredictionException("ML returned out-of-range predicted_fault: " + predicted);
+        String faultDescription = prediction.faultDescription();
+        if (faultDescription == null || faultDescription.isBlank()) {
+            throw new InvalidPredictionException(
+                    "ML returned no fault description for predicted_fault: " + prediction.predictedFault());
         }
 
         OBDData obdData = new OBDData();
@@ -82,7 +77,7 @@ public class DiagnosticService {
         obdData.setLambda(dto.getLambda());
         obdData.setAfr(dto.getAfr());
 
-        obdData.setPredictedFault(FAULT_LABELS[predicted]);
+        obdData.setPredictedFault(faultDescription);
         obdData.setConfidenceScore(prediction.confidence());
         obdData.setBooking(booking);
 
