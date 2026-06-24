@@ -13,13 +13,13 @@ services:
       - "5433:5432"
 
   ml-service:
-    build: ./ML
+    build: ./ml-service
     container_name: pfe-ml
     ports:
       - "8001:8001"
 
   backend:
-    build: src/main/java
+    build: ./backend
     container_name: pfe-backend
     ports:
       - "8080:8080"
